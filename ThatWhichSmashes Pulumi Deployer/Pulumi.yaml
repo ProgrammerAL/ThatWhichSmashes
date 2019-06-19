@@ -1,0 +1,3 @@
+name: ThatWhichSmashesPulumiDeployer
+runtime: nodejs
+description: A minimal Azure TypeScript Pulumi program
