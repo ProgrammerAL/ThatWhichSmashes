@@ -18,21 +18,26 @@ Also, at the point of this writing I have not run it at large scale against an e
 
 # How to Run
 
-Running this is a manual effort. You're running a couple of scripts on your machine that automate everything, but the setup and 
+Running this is a manual effort. You're running a couple of scripts on your machine that automate everything, but all of that is pretty straightforward. Below are the steps you must take to deploy and run this project.
 
+    
 1. Deploy the resources to Azure
   - Open the `ThatWhichSmashes Pulumi Deployer/index.ts` file and set the `resourceLocations` array with the list of azure regions you want to deploy to
     - You can get a list of all available regions using the `az account list-locations` command from the Azure CLI
   - Use the `pulumi up` command to deploy the resources to Azure
   - Note: The Azure Functions that are deployed are disbaled right now. They will be enabled in a later step
-1. Use the `RequestQueueAdder` console application to fill in the queues with the messages
+
+2. Use the `RequestQueueAdder` console application to fill in the queues with the messages
   - Fill in the `RequestQueueAdder/data/QueueEndpoints.json` file with the connection strings of all the queues that were created with Pulumi. You can find them in the console output after running the `pulumi up` command or online in the Pulumi portal
   - Next fill in the `RequestQueueAdder/data/Requests.json` file with all of the json messages you want to be added to each of the Azure Queues
   - Now that those json files have been filled out, run the `RequestQueueAdder` console application
-1. Redeploy the resources to Azure, but with the Azure Functions enabled
+
+3. Redeploy the resources to Azure, but with the Azure Functions enabled
   - Open the `Pulumi.dev.yaml` file and change the `functionIsEnabled` variable to `true`
   - Run the `pulumi up` command again. This will enable all of the Azure Functions and now they will begin grabbing messages from their respective queues and sending messages
-1. Wait for the functions to complete
+
+4. Wait for the functions to complete
   - View the statistics in the instance of Application Insights that was deployed with Pulumi
-1. When you no longer need any of the Azure resources, remove them with the `pulumi destroy` command
+
+5. When you no longer need any of the Azure resources, remove them with the `pulumi destroy` command
 
