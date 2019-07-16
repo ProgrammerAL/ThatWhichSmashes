@@ -1,4 +1,4 @@
 config:
   ThatWhichSmashesPulumiDeployer:functionAppZipPath: publishedApp/ThatWhichSmashesFunctionApp.zip
-  ThatWhichSmashesPulumiDeployer:functionIsEnabled: "true"
+  ThatWhichSmashesPulumiDeployer:functionIsEnabled: "false"
   azure:environment: public
