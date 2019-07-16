@@ -8,7 +8,11 @@ namespace RequestorUtilities
 {
     public class QueuedRequest
     {
+        private const int DefaultTimeBetweenRequestsInMilliseconds = 500;
+
         public string InitialUrl { get; set; } = string.Empty;
+        public int TimeBetweenRequestsInMs { get; set; } = DefaultTimeBetweenRequestsInMilliseconds;
+
         public ImmutableList<ExtraQueuedRequest> ExtraRequests { get; set; } = ImmutableList.Create<ExtraQueuedRequest>();
 
         public bool CheckIsValid()

@@ -34,9 +34,11 @@ namespace ThatWhichSmashesFunctionApp
             var initialResponse = await SendAndEnsureResponseFromInitialPageAsync(queuedItem.InitialUrl);
             var sessionHeaders = LoadSessionHeadersFromInitialResposne(initialResponse);
 
+            var delayTimespan = TimeSpan.FromMilliseconds(queuedItem.TimeBetweenRequestsInMs);
+
             foreach (var extraRequest in queuedItem.ExtraRequests)
             {
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(delayTimespan);
 
                 var requestMessage = CreateRequest(extraRequest, sessionHeaders);
                 var response = await _httpClient.SendAsync(requestMessage);
