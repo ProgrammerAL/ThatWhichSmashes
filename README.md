@@ -10,10 +10,11 @@ In order to use this project you will need a couple of things installed and setu
 - You must have .NET Core installed on your machine in order to run a setup console application
 
 
-# Disclaimer
-I DO NOT condone anyone using the code in this repo for any malicious activities. If you choose to do you, you would bebreaking some laws and usage policies. I assume. I haven't checked. 
+# Disclaimers
 
-Also, at the point of this writing I have not run it at large scale against an endpoint, so I'm not 100% positive it works as advertised. Will update this ReadMe with results when that happens.
+  1. I DO NOT condone anyone using the code in this repo for any malicious activities. If you choose to do you, you would bebreaking some laws and usage policies. I assume. I haven't checked. 
+  2. Also, at the point of this writing I have not run it at large scale against an endpoint, so I'm not 100% positive it works as advertised. Will update this ReadMe with results when that happens.
+  3. This is probably not a full solution for you. This project was designed to be a starting point that you customize for your own solution. I assume you will be taking this code and modifying it heavily to work for your applicaion(s). So be ready to make changes.
 
 
 # How to Run

@@ -29,7 +29,7 @@ namespace RequestQueueAdder
                 var storageAccount = CloudStorageAccount.Parse(connectionString);
 
                 var queueClient = storageAccount.CreateCloudQueueClient();
-                var queue = queueClient.GetQueueReference("hammer-requests-queue");
+                var queue = queueClient.GetQueueReference("tws-requests-queue");
 
                 foreach (var requestToQueue in queueMessages)
                 {

@@ -11,13 +11,23 @@ namespace RequestorUtilities
         /// </summary>
         public string Method { get; set; } = string.Empty;
 
-        public string BodyJson { get; set; } = string.Empty;
+        public string Body { get; set; } = string.Empty;
+        public string ContentType { get; set; } = string.Empty;
+        //public string Accept { get; set; } = string.Empty;
 
         public bool CheckIsValid()
         {
-            return !string.IsNullOrWhiteSpace(FullEndpoint)
-                && !string.IsNullOrWhiteSpace(Method)
-                && BodyJson != null;
+            var hasValidData = !string.IsNullOrWhiteSpace(FullEndpoint)
+                && !string.IsNullOrWhiteSpace(Method);
+
+            if (!string.IsNullOrEmpty(Body))
+            {
+                hasValidData &= !string.IsNullOrEmpty(Body)
+                            && !string.IsNullOrEmpty(ContentType);
+                //&& !string.IsNullOrEmpty(Accept);
+            }
+
+            return hasValidData;
         }
     }
 }

@@ -3,18 +3,20 @@ import * as azure from "@pulumi/azure";
 
 const config = new pulumi.Config()
 
-const resourceLocations:string[] = ["westus"];//, "eastasia"];
+const resourceLocations:string[] = ["westus", "centralus", "eastus"];//, "canadacentral", "canadaeast", "westeurope", "uksouth", "ukwest", "eastasia", "japanwest", "brazilsouth", "australiaeast", "southindia", "francecentral"];
 const connectionStrings:pulumi.Output<string>[] = [];
 
 // Create global Application Insights instance to track all logs
-const parentRG = new azure.core.ResourceGroup("HammerTestingParentRG", {
+const parentRG = new azure.core.ResourceGroup("ThatWhichSmashesParentRG", {
     location: "eastus"
 });
 
-const parentAppInsights = new azure.appinsights.Insights("HammerTestingAppInsights", {
+const appInsightsName = "ThatWhichSmashesAppInsights";
+
+const parentAppInsights = new azure.appinsights.Insights(appInsightsName, {
     applicationType: "web",
     location: "eastus",
-    name: "HammerTestingAppInsights",
+    name: appInsightsName,
     resourceGroupName: parentRG.name,
 });
 
@@ -22,12 +24,14 @@ const parentAppInsights = new azure.appinsights.Insights("HammerTestingAppInsigh
 resourceLocations.forEach(location =>
 {
     const resourceGroupName = "rg-" + location;
-    const storageAccountName = "storage" + location;
-    const queueAccountName = "hammer-requests-queue";
-    const blobContainerName = "hammer-requests-blob";
-    const zipBlobName = "HammerTestingFunctionApp.zip";
-    const appServicePlanName = "hammer-" + location;
-    const functionName = "hammer-" + location;
+    const storageAccountName = "stg" + location;
+    const queueName = "tws-requests-queue";
+    const queueAccountName = queueName + "-" + location;
+    const blobContainerName = "tws-requests-blob-" + location;
+    const zipFileName = config.require("functionAppZipFileName");
+    const zipBlobName = location + "-" + zipFileName;
+    const appServicePlanName = "tws-" + location;
+    const functionName = "tws-" + location;
 
     // Create an Azure Resource Group
     const resourceGroup = new azure.core.ResourceGroup(resourceGroupName, {
@@ -46,7 +50,7 @@ resourceLocations.forEach(location =>
     const queue = new azure.storage.Queue(queueAccountName, {
         resourceGroupName: resourceGroup.name,
         storageAccountName: storageAccount.name,
-        name: queueAccountName
+        name: queueName
     });
 
     const blobContainer = new azure.storage.Container(blobContainerName, {
@@ -60,9 +64,9 @@ resourceLocations.forEach(location =>
         resourceGroupName: resourceGroup.name,
         storageAccountName: storageAccount.name,
         storageContainerName: blobContainer.name,
-        name: zipBlobName,
+        name: zipFileName,
         type: "block",
-        source: config.require("functionAppZipPath")
+        source: config.require("functionAppZipFolderPath") + "/" + zipFileName
     });
 
     //Now deploy the Azure Function App

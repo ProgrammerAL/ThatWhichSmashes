@@ -1,0 +1,5 @@
+config:
+  ThatWhichSmashesPulumiDeployer:functionAppZipFolderPath: publishedApp
+  ThatWhichSmashesPulumiDeployer:functionAppZipFileName: ThatWhichSmashesFunctionApp.zip
+  ThatWhichSmashesPulumiDeployer:functionIsEnabled: "true"
+  azure:environment: public

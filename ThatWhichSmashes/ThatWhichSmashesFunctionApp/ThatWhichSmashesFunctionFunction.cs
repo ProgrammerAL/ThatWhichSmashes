@@ -21,7 +21,7 @@ namespace ThatWhichSmashesFunctionApp
         });
 
         [FunctionName("ThatWhichSmashesFunction")]
-        public static async Task Run([QueueTrigger("hammer-requests-queue", Connection = "FunctionConnectionString")]string queuedRequest, ILogger log)
+        public static async Task Run([QueueTrigger("tws-requests-queue", Connection = "FunctionConnectionString")]string queuedRequest, ILogger log)
         {
             var queuedItem = Newtonsoft.Json.JsonConvert.DeserializeObject<QueuedRequest>(queuedRequest);
 
@@ -53,15 +53,15 @@ namespace ThatWhichSmashesFunctionApp
             var httpMethod = GetHttpMethod(queuedRequest.Method);
             var request = new HttpRequestMessage(httpMethod, queuedRequest.FullEndpoint);
 
-            foreach (var header in sessionHeaders)
+            foreach (var (key, value) in sessionHeaders)
             {
-                request.Headers.Add(header.Key, header.Value);
+                request.Headers.Add(key, value);
             }
 
-            if (!string.IsNullOrEmpty(queuedRequest.BodyJson))
+            if (!string.IsNullOrEmpty(queuedRequest.Body))
             {
-                request.Headers.Add("Accept", "application/json, text/javascript, */*");
-                request.Content = new StringContent(queuedRequest.BodyJson, Encoding.UTF8, "application/json");
+                request.Headers.Add("Accept", "*/*");
+                request.Content = new StringContent(queuedRequest.Body, Encoding.UTF8, queuedRequest.ContentType);
             }
 
             return request;
