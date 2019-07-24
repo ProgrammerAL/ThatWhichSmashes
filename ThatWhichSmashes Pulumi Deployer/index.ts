@@ -1,9 +1,9 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as azure from "@pulumi/azure";
 
-const config = new pulumi.Config()
+const zipFilePathRelative = "publishedApp/ThatWhichSmashesFunctionApp.zip";
 
-const resourceLocations:string[] = ["westus", "centralus", "eastus"];//, "canadacentral", "canadaeast", "westeurope", "uksouth", "ukwest", "eastasia", "japanwest", "brazilsouth", "australiaeast", "southindia", "francecentral"];
+const resourceLocations:string[] = ["westus", "centralus"];//, "eastus", "canadacentral", "canadaeast", "westeurope", "uksouth", "ukwest", "eastasia", "japanwest", "brazilsouth", "australiaeast", "southindia", "francecentral"];
 const connectionStrings:pulumi.Output<string>[] = [];
 
 // Create global Application Insights instance to track all logs
@@ -27,46 +27,26 @@ resourceLocations.forEach(location =>
     const storageAccountName = "stg" + location;
     const queueName = "tws-requests-queue";
     const queueAccountName = queueName + "-" + location;
-    const blobContainerName = "tws-requests-blob-" + location;
-    const zipFileName = config.require("functionAppZipFileName");
-    const zipBlobName = location + "-" + zipFileName;
     const appServicePlanName = "tws-" + location;
-    const functionName = "tws-" + location;
+    const functionName = "tws-func-" + location;
 
-    // Create an Azure Resource Group
     const resourceGroup = new azure.core.ResourceGroup(resourceGroupName, {
         location: location       
     });
 
-    // Create an Azure resource (Storage Account)
     const storageAccount = new azure.storage.Account(storageAccountName, {
         resourceGroupName: resourceGroup.name,
         location: resourceGroup.location,
         accountTier: "Standard",
-        accountReplicationType: "LRS" 
+        accountReplicationType: "LRS",
+        accountKind: "StorageV2"
     });
 
-    //Create the Storage Queue
+    //Create the Storage Queue that'll hold the messages the Function will grab from
     const queue = new azure.storage.Queue(queueAccountName, {
         resourceGroupName: resourceGroup.name,
         storageAccountName: storageAccount.name,
         name: queueName
-    });
-
-    const blobContainer = new azure.storage.Container(blobContainerName, {
-        resourceGroupName: resourceGroup.name,
-        storageAccountName: storageAccount.name,
-        name: blobContainerName,
-        containerAccessType: "blob"
-    }); 
-
-    const zipBlob = new azure.storage.Blob(zipBlobName, {
-        resourceGroupName: resourceGroup.name,
-        storageAccountName: storageAccount.name,
-        storageContainerName: blobContainer.name,
-        name: zipFileName,
-        type: "block",
-        source: config.require("functionAppZipFolderPath") + "/" + zipFileName
     });
 
     //Now deploy the Azure Function App
@@ -76,7 +56,7 @@ resourceLocations.forEach(location =>
         kind: "FunctionApp",
             sku: {
             size: "Y1",
-            tier: "Dynamic",
+            tier: "Dynamic"
         },
     });
 
@@ -85,19 +65,19 @@ resourceLocations.forEach(location =>
     // Export the connection string for the storage account
     connectionStrings.push(functionConnectionString);
 
-    const functionApp = new azure.appservice.FunctionApp(functionName, {
-        resourceGroupName: resourceGroup.name,
-        appServicePlanId: appServicePlan.id,
+    const dotnetApp = new azure.appservice.ArchiveFunctionApp(functionName, {
+        resourceGroup : resourceGroup,
         location: location,
-        storageConnectionString: storageAccount.primaryConnectionString,
+        account: storageAccount,
+        name: functionName,
+        archive: new pulumi.asset.FileArchive(zipFilePathRelative),
         version: "~2",
         enableBuiltinLogging: true,
-        enabled: config.requireBoolean("functionIsEnabled"),
+        plan: appServicePlan,
         appSettings: {
-            "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-            "WEBSITE_RUN_FROM_ZIP": zipBlob.url,
+            "runtime": "dotnet",
             "FunctionConnectionString": functionConnectionString,
-            "APPINSIGHTS_INSTRUMENTATIONKEY": parentAppInsights.instrumentationKey
+            "APPINSIGHTS_INSTRUMENTATIONKEY": parentAppInsights.instrumentationKey,
         },
     });
 });

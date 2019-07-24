@@ -1,6 +1,7 @@
 ﻿[
   {
     "count": 5,
+    "name":  "Bing Query",
     "jsonMessage": "{\"InitialUrl\": \"https:\/\/www.bing.com\/\",\"TimeBetweenRequestsInMs\": \"500\",\"ExtraRequests\": [{\"FullEndpoint\": \"https:\/\/www.bing.com\/search?q=test&qs=n&form=QBLH&sp=-1&pq=test&sc=8-4&sk=&cvid=DFD3CEDCC7D347C8AB807B7AC65B1783\",\"Method\": \"GET\",\"BodyJson\": \"\"}]}"
   }
 ]

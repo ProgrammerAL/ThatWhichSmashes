@@ -13,7 +13,6 @@ namespace RequestorUtilities
 
         public string Body { get; set; } = string.Empty;
         public string ContentType { get; set; } = string.Empty;
-        //public string Accept { get; set; } = string.Empty;
 
         public bool CheckIsValid()
         {
@@ -24,7 +23,6 @@ namespace RequestorUtilities
             {
                 hasValidData &= !string.IsNullOrEmpty(Body)
                             && !string.IsNullOrEmpty(ContentType);
-                //&& !string.IsNullOrEmpty(Accept);
             }
 
             return hasValidData;

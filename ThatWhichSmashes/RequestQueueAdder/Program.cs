@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Queue;
@@ -24,6 +25,7 @@ namespace RequestQueueAdder
                 throw new Exception($"{nameof(queueMessages)} is empty");
             }
 
+            Console.WriteLine($"Starting -- {DateTime.Now}{Environment.NewLine}");
             foreach (var connectionString in queueConnectionStrings)
             {
                 var storageAccount = CloudStorageAccount.Parse(connectionString);
@@ -31,15 +33,23 @@ namespace RequestQueueAdder
                 var queueClient = storageAccount.CreateCloudQueueClient();
                 var queue = queueClient.GetQueueReference("tws-requests-queue");
 
+                Console.WriteLine($"Starting -- {DateTime.Now}{Environment.NewLine}\t{connectionString}{Environment.NewLine}");
+
                 foreach (var requestToQueue in queueMessages)
                 {
-                    for (int i = 0; i < requestToQueue.Count; i++)
-                    {
-                        var message = new CloudQueueMessage(requestToQueue.JsonMessage, isBase64Encoded: false);
-                        await queue.AddMessageAsync(message);
-                    }
+                    Console.WriteLine($"\tAdding message {requestToQueue.Name}");
+
+                    var message = new CloudQueueMessage(requestToQueue.JsonMessage, isBase64Encoded: false);
+                    var addMessageTasks = Enumerable.Range(1, requestToQueue.Count).Select(x => queue.AddMessageAsync(message)).ToArray();
+                    Task.WaitAll(addMessageTasks);
                 }
+
+                queue.FetchAttributes();
+                Console.WriteLine($"Completed adding {queue.ApproximateMessageCount} messages -- {DateTime.Now} for {Environment.NewLine}\t{connectionString}{Environment.NewLine}");
             }
+
+            Console.WriteLine($"Completed All -- {DateTime.Now}");
+            await Task.CompletedTask;
         }
 
         private static Request[] LoadQueueMessages()
